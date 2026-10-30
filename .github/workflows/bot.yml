@@ -1,0 +1,42 @@
+name: Bot Chandelier Exit (XAUUSD)
+
+on:
+  # 1. Permite ejecutar el bot manualmente desde la pestaña "Actions"
+  workflow_dispatch: 
+  
+  # 2. Programación automática: Se ejecuta a los 15 minutos de cada ciclo de 6 horas
+  # (00:15, 06:15, 12:15 y 18:15 UTC)
+  schedule:
+    - cron: '15 */6 * * *' 
+
+jobs:
+  run-bot:
+    # Usa la última versión de Ubuntu que provee GitHub
+    runs-on: ubuntu-latest
+    
+    # Tiempo máximo de ejecución en GitHub (6 horas)
+    timeout-minutes: 360 
+
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Ejecutar Bot
+        env:
+          # Aquí GitHub inyecta los secretos que configuraste en Settings
+          TICKERALL_API_KEY: ${{ secrets.TICKERALL_API_KEY }}
+          HEADWAY_ACCOUNT: ${{ secrets.HEADWAY_ACCOUNT }}
+          HEADWAY_PASSWORD: ${{ secrets.HEADWAY_PASSWORD }}
+        
+        # 21300 segundos = 5 horas y 55 minutos.
+        # Usamos 'timeout' para matar el bot 5 minutos antes de que GitHub corte el proceso por la fuerza (a las 6h).
+        # Esto asegura que la ejecución termine limpiamente y vuelva a empezar en el próximo ciclo.
+        run: timeout 21300 python bot.py
