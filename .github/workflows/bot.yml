@@ -1,19 +1,11 @@
-name: bot
+name: Prueba Bot
+
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '15 */6 * * *'
+
 jobs:
-  run-bot:
+  ejecutar:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - name: Install
-        run: pip install -r requirements.txt
-      - name: Run
-        run: python bot.py
+      - name: Saludar
+        run: echo "Hola, GitHub me está ejecutando"
